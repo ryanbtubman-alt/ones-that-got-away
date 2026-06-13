@@ -279,6 +279,15 @@ header p {
   padding-top: 6px;
 }
 .comm-feed .comm.header:first-child { margin-top: 0; border-top: none; padding-top: 0; }
+.comm.chaos {
+  color: #ffd24a;
+  font-weight: 700;
+  background: rgba(244,196,48,.1);
+  border-left: 3px solid var(--accent);
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin: 3px 0;
+}
 .comm.pbp { color: var(--dim); }
 .comm.streak { color: var(--accent); font-weight: 600; }
 .comm.gag-good { color: var(--good); font-weight: 600; }

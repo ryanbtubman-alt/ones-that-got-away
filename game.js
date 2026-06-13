@@ -184,6 +184,55 @@ const GAGS = {
     { t: "🪣 Kevin Martin is quietly piling up buckets in bunches.", d: +4 },
   ],
 };
+
+// A third, fully UNHINGED gag for everyone — bigger swings, zero realism.
+const EXTRA_GAGS = {
+  luka: [{ t: "🍺 Luka challenged a fan to a beer-chug at halftime. He won. He also can't feel his legs.", d: -7 }],
+  brunson: [{ t: "🧬 Scientists confirm Brunson is now legally 5'9\" and listed as 'a tall toddler'.", d: -6 }],
+  peja: [{ t: "🛂 ICE showed up courtside. Peja is now coaching via Zoom from Belgrade.", d: -7 }],
+  webber: [{ t: "⏱️ Webber called THREE timeouts they didn't have. The refs gave the title away out of confusion.", d: -8 }],
+  cousins: [{ t: "🌋 Boogie ejected, then ejected the referee, then ejected himself from the arena.", d: -6 }],
+  artest: [{ t: "🥊 Artest fought the entire bench AND the Gatorade cooler. The cooler won.", d: -6 }],
+  nash: [{ t: "🥅 Nash subbed himself out to take a penalty kick. Drilled it. Wrong sport entirely.", d: -6 }],
+  haliburton: [{ t: "🎬 Haliburton stopped mid-fast-break to film a State Farm commercial.", d: -5 }],
+  whiteside: [{ t: "📊 Whiteside left the game to check his fantasy stats. On himself.", d: -6 }],
+  isaiahthomas: [{ t: "🧍 IT stood at center court demanding the max contract he never got. Refused to move.", d: -5 }],
+  jamison: [{ t: "🛌 Jamison is now medically asleep. Doctors baffled. He still scored 8.", d: -5 }],
+  chandler: [{ t: "🏗️ Chandler set a screen so hard he relocated their point guard to the parking lot.", d: +7 }],
+  harris: [{ t: "🚗 Harris got traded mid-game in a deal nobody told him about. Played for both teams.", d: -5 }],
+  crowder: [{ t: "📲 Crowder posted 'min restriction' on IG and benched himself out of spite.", d: -6 }],
+  wood: [{ t: "👻 Wood was so deep on the bench, security asked him to leave the building.", d: -6 }],
+  sethcurry: [{ t: "🎯 Seth hit 11 straight threes. Steph called him to say 'chill'.", d: +8 }],
+  finley: [{ t: "🕰️ Finley reverted to 2001 and demanded the Mavs un-amnesty him on the spot.", d: +5 }],
+  terry: [{ t: "✈️ The Jet declared a fuel emergency and made an unscheduled landing in the stands.", d: -6 }],
+  howard: [{ t: "📵 Josh Howard went on a radio show to rip the anthem DURING the anthem.", d: -5 }],
+  dsj: [{ t: "🛸 DSJ dunked so hard he hit low-earth orbit. Two points and a sonic boom.", d: +7 }],
+  bogdanovic: [{ t: "🌭 Bogdan ate 14 hot dogs at the half 'for energy'. He cannot move.", d: -6 }],
+  hield: [{ t: "🎰 Buddy shot a three from the TUNNEL. Swish. He shot 30 more. None fell.", d: -7 }],
+  tyreke: [{ t: "🦿 Tyreke's knees unionized and went on strike at tipoff.", d: -7 }],
+  bibby: [{ t: "🦴 Bibby's AARP card fell out of his shorts mid-crossover.", d: -5 }],
+  kmart: [{ t: "🏥 Kevin Martin got injured in the pregame handshake line.", d: -6 }],
+};
+Object.keys(EXTRA_GAGS).forEach((id) => {
+  if (GAGS[id]) GAGS[id].push(...EXTRA_GAGS[id]);
+});
+
+// League-wide CHAOS: fires regardless of roster. d hits you, od hits the champ.
+const CHAOS = [
+  { t: "🦝 A raccoon stormed the court and stole the game ball. Everyone forgot the score.", d: 0, od: 0 },
+  { t: "🎰 Vegas confirms the refs have a heavy bet against you tonight.", d: -5 },
+  { t: "📉 Your front office tried to trade your best player MID-GAME.", d: -6 },
+  { t: "📺 The broadcast cut to the Cowboys game. Team morale collapsed.", d: -3 },
+  { t: "🛸 A UFO hovered over the arena. Both teams played terrified.", d: -3, od: -3 },
+  { t: "🏀 The rim mysteriously shrank to half-size — but only for the champions.", od: -6 },
+  { t: "💃 The halftime act ran 40 minutes and the champs went stone cold.", od: -5 },
+  { t: "🔥 The opposing superstar pulled a hammy on a between-the-legs flex dribble.", od: -7 },
+  { t: "🌭 The arena ran out of nachos and the entire crowd turned feral.", d: -2, od: -2 },
+  { t: "🐐 A live goat wandered onto the floor. Jordan, wherever he is, took it personally.", od: 4 },
+];
+function rollChaos() {
+  return Math.random() < 0.5 ? [rand(CHAOS)] : [];
+}
 // Generic play-by-play templates: {R} = your player, {C} = champion player.
 const PBP = [
   "{R} drills a tough fadeaway over {C}.",
@@ -218,7 +267,7 @@ function rollGags() {
   const events = [];
   roster.forEach((p) => {
     const list = GAGS[p.id];
-    if (list && list.length && Math.random() < 0.55) {
+    if (list && list.length && Math.random() < 0.72) {
       events.push({ name: p.name, ...rand(list) });
     }
   });
@@ -259,21 +308,26 @@ function simSeries(rOpp, champ) {
     g++;
     const { rating, notes } = gameRoll(); // varies per game if volatile (Fox)
     const gags = rollGags();
-    const gameRating = rating + gags.reduce((a, x) => a + x.d, 0);
-    const [u, o] = simGame(gameRating, rOpp);
+    const chaos = rollChaos();
+    const userDelta =
+      gags.reduce((a, x) => a + x.d, 0) +
+      chaos.reduce((a, x) => a + (x.d || 0), 0);
+    const oppDelta = chaos.reduce((a, x) => a + (x.od || 0), 0);
+    const [u, o] = simGame(rating + userDelta, rOpp + oppDelta);
     const win = u > o;
     if (win) uw++;
     else ow++;
     games.push({ u, o, win, notes });
 
-    // Build the play-by-play feed for this game — gags are the headline.
+    // Build the play-by-play feed for this game — chaos and gags are the show.
     commentary.push({ type: "header", text: `GAME ${g} — vs ${champ.year} ${champ.name}` });
+    chaos.forEach((x) => commentary.push({ type: "chaos", text: x.t }));
     notes.forEach((n) => commentary.push({ type: "streak", text: n }));
     gags.forEach((x) =>
       commentary.push({ type: x.d < 0 ? "gag-bad" : "gag-good", text: x.t })
     );
     // Only drop in generic play-by-play if nothing wild happened this game.
-    if (notes.length === 0 && gags.length === 0)
+    if (notes.length === 0 && gags.length === 0 && chaos.length === 0)
       pbpLines(champ, 1).forEach((l) => commentary.push({ type: "pbp", text: l }));
     commentary.push({
       type: win ? "final-w" : "final-l",
