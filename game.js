@@ -18,15 +18,43 @@ PLAYERS.forEach((p) => (p.overall = overall(p)));
 let roster = []; // array of player objects, max ROSTER_SIZE (positionless)
 let teamFilter = "ALL"; // ALL | DAL | SAC
 
-// Difficulty: oppAdj boosts the champion's rating; noiseScale < 1 means fewer
-// upsets, so the rating gap matters more (harder when you're the underdog).
+// Difficulty = restrictions on who you can roster. A "star" is 90+ OVR.
+// Harder levels force you to build from the deeper (worse) castoff pool.
+const STAR = 90;
 const DIFFICULTIES = [
-  { name: "Rookie", oppAdj: -5, noiseScale: 1.2, desc: "Champs take it easy on you." },
-  { name: "Pro", oppAdj: 0, noiseScale: 1.0, desc: "Straight up, no help." },
-  { name: "All-Star", oppAdj: 5, noiseScale: 0.9, desc: "Champions get a boost." },
-  { name: "Legend", oppAdj: 10, noiseScale: 0.78, desc: "Peak dynasty. Good luck." },
+  { name: "Rookie", maxStars: Infinity, desc: "No limits — pick anyone." },
+  { name: "Pro", maxStars: 2, desc: "Max two 90+ OVR stars." },
+  { name: "All-Star", maxStars: 1, desc: "Only one 90+ OVR star allowed." },
+  { name: "Legend", maxStars: 0, desc: "No 90+ stars. Role players only." },
 ];
 let currentDifficulty = 1; // Pro by default
+
+function isStar(p) {
+  return p.overall >= STAR;
+}
+function starCount() {
+  return roster.filter(isStar).length;
+}
+function maxStars() {
+  return DIFFICULTIES[currentDifficulty].maxStars;
+}
+// Can this player be added under the current difficulty + roster state?
+function canAdd(p) {
+  if (roster.length >= ROSTER_SIZE) return false;
+  if (isStar(p) && starCount() >= maxStars()) return false;
+  return true;
+}
+// Trim roster to satisfy a (newly selected) difficulty; returns removed players.
+function enforceRestriction() {
+  const removed = [];
+  let stars = roster.filter(isStar).sort((a, b) => a.overall - b.overall); // weakest first
+  while (roster.filter(isStar).length > maxStars() && stars.length) {
+    const drop = stars.shift();
+    roster = roster.filter((p) => p.id !== drop.id);
+    removed.push(drop);
+  }
+  return removed;
+}
 
 function pickedIds() {
   return roster.map((p) => p.id);
@@ -45,11 +73,96 @@ function noise() {
   // ~bell-shaped, std around 9 points
   return (Math.random() + Math.random() + Math.random() - 1.5) * 9;
 }
-function simGame(rUser, rOpp, noiseScale) {
-  let a = Math.round(101 + (rUser - 87) * 1.6 + noise() * noiseScale);
-  let b = Math.round(101 + (rOpp - 87) * 1.6 + noise() * noiseScale);
+function simGame(rUser, rOpp) {
+  let a = Math.round(101 + (rUser - 87) * 1.6 + noise());
+  let b = Math.round(101 + (rOpp - 87) * 1.6 + noise());
   if (a === b) a += 1; // no ties in basketball
   return [a, b];
+}
+
+// --- Comedy gags: random per-game incidents tied to specific players ---------
+// delta adjusts that game's team rating (so the gag actually matters).
+const GAGS = {
+  luka: [
+    { t: "🍔 Luka rolled in carrying some serious offseason weight — a half-step slow all game.", d: -5 },
+    { t: "🪄 Luka pulls up from the logo and steps back into MVP form.", d: +4 },
+  ],
+  brunson: [
+    { t: "📏 Brunson mysteriously woke up 3 inches shorter — getting his stuff swatted.", d: -5 },
+    { t: "🦴 Captain Brunson is bullying every guard who switches onto him.", d: +4 },
+  ],
+  peja: [
+    { t: "🛂 Peja got deported mid-series and missed the entire game.", d: -6 },
+    { t: "🎯 Peja is unconscious from deep — literally cannot miss.", d: +4 },
+  ],
+  webber: [
+    { t: "⏱️ Webber called a timeout they didn't have. Technical foul. Of course.", d: -5 },
+    { t: "👑 Webber is dominating the glass and orchestrating the offense.", d: +4 },
+  ],
+  cousins: [
+    { t: "🗣️ Boogie picked up his second technical for jawing at the refs.", d: -4 },
+    { t: "💪 Boogie is posting up and abusing the champs in the paint.", d: +4 },
+  ],
+  artest: [
+    { t: "🥊 Artest went into the stands and got ejected. Malice flashback.", d: -6 },
+    { t: "🔒 Artest has completely erased their best scorer tonight.", d: +4 },
+  ],
+  nash: [
+    { t: "⚽ Nash got distracted starting a soccer club at halftime.", d: -3 },
+    { t: "🎩 Nash is carving the defense apart — vintage MVP wizardry.", d: +4 },
+  ],
+  haliburton: [
+    { t: "📉 Haliburton's hamstring tightened up — visibly limited.", d: -5 },
+    { t: "🎯 Haliburton is running a clinic, piling up double-digit dimes.", d: +4 },
+  ],
+  whiteside: [
+    { t: "📱 Whiteside seems more worried about his own stat line than the score.", d: -4 },
+    { t: "🚫 Whiteside is swatting everything that comes near the rim.", d: +4 },
+  ],
+  isaiahthomas: [
+    { t: "🩹 IT's hip flared up again — playing through visible pain.", d: -4 },
+    { t: "🥺 IT, playing with a chip on his shoulder, is scoring in bunches.", d: +4 },
+  ],
+  cuban_generic: [],
+};
+// Generic play-by-play templates: {R} = your player, {C} = champion player.
+const PBP = [
+  "{R} drills a tough fadeaway over {C}.",
+  "{C} answers right back with a deep three.",
+  "{R} throws down a poster dunk on {C}!",
+  "Turnover — {C} leaks out in transition for the slam.",
+  "{R} threads a no-look dime for an easy bucket.",
+  "Defensive stop by {R}, and the building erupts.",
+  "{C} gets to the line and calmly knocks down both.",
+  "{R} hits a step-back at the shot-clock buzzer.",
+  "Scramble for the loose ball — {R} comes up with it.",
+  "{C} splashes a corner triple to swing the momentum.",
+];
+
+function rand(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+function pbpLines(champ, n = 2) {
+  const mine = roster.map((p) => p.name.split(" ").pop());
+  const theirs = champ.players.map((p) => p.name.split(" ").pop());
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    out.push(
+      rand(PBP).replace("{R}", rand(mine)).replace("{C}", rand(theirs))
+    );
+  }
+  return out;
+}
+// Roll comedy incidents for this game from rostered players who have gags.
+function rollGags() {
+  const events = [];
+  roster.forEach((p) => {
+    const list = GAGS[p.id];
+    if (list && list.length && Math.random() < 0.22) {
+      events.push(rand(list));
+    }
+  });
+  return events;
 }
 // Volatile players (e.g. De'Aaron Fox) re-roll their rating every single game.
 function rollOvr(p) {
@@ -76,18 +189,36 @@ function gameRoll() {
   });
   return { rating: Math.round(sum / roster.length), notes };
 }
-function simSeries(rOpp, noiseScale) {
+function simSeries(rOpp, champ) {
   const games = [];
+  const commentary = [];
   let uw = 0,
-    ow = 0;
+    ow = 0,
+    g = 0;
   while (uw < 4 && ow < 4) {
-    const { rating, notes } = gameRoll(); // user rating varies per game if volatile
-    const [u, o] = simGame(rating, rOpp, noiseScale);
-    if (u > o) uw++;
+    g++;
+    const { rating, notes } = gameRoll(); // varies per game if volatile (Fox)
+    const gags = rollGags();
+    const gameRating = rating + gags.reduce((a, x) => a + x.d, 0);
+    const [u, o] = simGame(gameRating, rOpp);
+    const win = u > o;
+    if (win) uw++;
     else ow++;
-    games.push({ u, o, win: u > o, notes });
+    games.push({ u, o, win, notes });
+
+    // Build the play-by-play feed for this game.
+    commentary.push({ type: "header", text: `GAME ${g} — vs ${champ.year} ${champ.name}` });
+    pbpLines(champ).forEach((l) => commentary.push({ type: "pbp", text: l }));
+    notes.forEach((n) => commentary.push({ type: "streak", text: n }));
+    gags.forEach((x) =>
+      commentary.push({ type: x.d < 0 ? "gag-bad" : "gag-good", text: x.t })
+    );
+    commentary.push({
+      type: win ? "final-w" : "final-l",
+      text: `${win ? "✅ WIN" : "❌ LOSS"} ${u}–${o}`,
+    });
   }
-  return { games, uw, ow, won: uw === 4 };
+  return { games, uw, ow, won: uw === 4, commentary };
 }
 
 // --- Rendering --------------------------------------------------------------
@@ -147,29 +278,38 @@ function renderPool() {
   if (teamFilter !== "ALL") list = list.filter((p) => p.team === teamFilter);
   list.sort((a, b) => b.overall - a.overall);
 
-  const hint = isComplete()
+  const full = isComplete();
+  const cap = maxStars();
+  const starsHint =
+    cap === Infinity
+      ? `90+ stars: unlimited`
+      : `90+ stars: ${starCount()}/${cap}`;
+  const hint = full
     ? `Roster full — remove someone to swap`
-    : `Tap any player to add (positionless — stack as many guards as you want)`;
+    : `Tap any player to add · <b>${starsHint}</b>`;
 
   poolEl.innerHTML =
     `<div class="pool-hint">${hint}</div>` +
     (list.length === 0
       ? `<div class="pool-empty">No players left for this filter.</div>`
       : list
-          .map(
-            (p) => `
-        <button class="card" data-add="${p.id}" ${isComplete() ? "disabled" : ""}>
+          .map((p) => {
+            const starLocked = !full && isStar(p) && starCount() >= cap;
+            const disabled = full || starLocked;
+            return `
+        <button class="card ${starLocked ? "locked" : ""}" data-add="${p.id}" ${disabled ? "disabled" : ""}>
           <div class="card-top">
             <span class="ovr">${p.overall}</span>
             <span class="card-name">${p.name}</span>
             ${teamBadge(p.team)}
             ${volatileTag(p)}
+            ${starLocked ? `<span class="lock">🔒 star limit</span>` : ""}
           </div>
           <div class="card-stats">${p.stats.pts} pts · ${p.stats.reb} reb · ${p.stats.ast} ast <span class="dim">(${p.peakSeason})</span></div>
           ${viaTag(p)}
           <div class="card-roast">${p.roast}</div>
-        </button>`
-          )
+        </button>`;
+          })
           .join(""));
 }
 
@@ -188,14 +328,10 @@ function renderAll() {
   renderScore();
 }
 
-function renderSeriesResult(champ, rUser, series, diff, oppRating) {
+function renderSeriesResult(champ, rUser, series, diff) {
   const champStars = champ.players
     .map((p) => `${p.name} <span class="dim">${p.ovr}</span>`)
     .join(" · ");
-  const boost =
-    diff.oppAdj !== 0
-      ? ` <span class="dim">(${champ.rating}${diff.oppAdj > 0 ? "+" : ""}${diff.oppAdj})</span>`
-      : "";
 
   const verdict = series.won
     ? series.uw - series.ow >= 3
@@ -229,13 +365,21 @@ function renderSeriesResult(champ, rUser, series, diff, oppRating) {
         <div class="vs">${series.uw}–${series.ow}</div>
         <div class="side opp">
           <div class="side-label">${champ.year} ${champ.name}</div>
-          <div class="side-rating">${oppRating}${boost}</div>
+          <div class="side-rating">${champ.rating}</div>
         </div>
       </div>
       <div class="diff-tag">⚙️ ${diff.name} difficulty</div>
       <div class="champ-blurb">${champ.blurb}</div>
       <div class="champ-stars">${champStars}</div>
       <div class="games">${gamesHtml}</div>
+      <div class="commentary">
+        <div class="comm-title">📻 Series play-by-play</div>
+        <div class="comm-feed">
+          ${series.commentary
+            .map((c) => `<div class="comm ${c.type}">${c.text}</div>`)
+            .join("")}
+        </div>
+      </div>
       <div class="result-verdict ${series.won ? "won" : "lost"}">${verdict}</div>
     </div>`;
   resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -251,12 +395,16 @@ rosterEl.addEventListener("click", (e) => {
 
 poolEl.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-add]");
-  if (!btn || isComplete()) return;
+  if (!btn) return;
   const player = PLAYERS.find((p) => p.id === btn.dataset.add);
-  if (player && !pickedIds().includes(player.id)) {
-    roster.push(player);
-    renderAll();
+  if (!player || pickedIds().includes(player.id)) return;
+  if (!canAdd(player)) {
+    if (isStar(player))
+      verdictEl.textContent = `🔒 ${player.name} is a 90+ star — ${DIFFICULTIES[currentDifficulty].name} allows only ${maxStars()}. Lower the difficulty or pick a role player.`;
+    return;
   }
+  roster.push(player);
+  renderAll();
 });
 
 document.querySelectorAll("[data-filter]").forEach((btn) => {
@@ -277,6 +425,12 @@ document.querySelectorAll("[data-diff]").forEach((btn) => {
       .querySelectorAll("[data-diff]")
       .forEach((b) => b.classList.toggle("on", b === btn));
     if (diffDescEl) diffDescEl.textContent = DIFFICULTIES[currentDifficulty].desc;
+    const removed = enforceRestriction();
+    renderAll();
+    if (removed.length)
+      verdictEl.textContent = `Removed ${removed
+        .map((p) => p.name)
+        .join(", ")} — over the ${DIFFICULTIES[currentDifficulty].name} star limit.`;
   });
 });
 
@@ -285,9 +439,8 @@ playBtn.addEventListener("click", () => {
   const champ = CHAMPIONS[Math.floor(Math.random() * CHAMPIONS.length)];
   const diff = DIFFICULTIES[currentDifficulty];
   const rUser = teamRating();
-  const oppRating = champ.rating + diff.oppAdj;
-  const series = simSeries(oppRating, diff.noiseScale);
-  renderSeriesResult(champ, rUser, series, diff, oppRating);
+  const series = simSeries(champ.rating, champ);
+  renderSeriesResult(champ, rUser, series, diff);
 });
 
 document.getElementById("clearBtn").addEventListener("click", () => {

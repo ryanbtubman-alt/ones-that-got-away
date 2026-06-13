@@ -235,7 +235,56 @@ header p {
 .result-verdict { text-align: center; font-size: 15px; font-weight: 700; padding-top: 4px; }
 .result-verdict.won { color: var(--good); }
 .result-verdict.lost { color: var(--bad); }
-.card:disabled { opacity: 0.4; cursor: not-allowed; }
+.card:disabled { cursor: not-allowed; }
+.card.locked { opacity: 0.5; }
+.card:disabled:not(.locked) { opacity: 0.4; }
+.lock {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: rgba(248,113,113,.15);
+  color: var(--bad);
+  margin-left: auto;
+}
+
+/* Play-by-play commentary feed */
+.commentary { margin-bottom: 12px; }
+.comm-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--dim);
+  margin-bottom: 6px;
+}
+.comm-feed {
+  max-height: 220px;
+  overflow-y: auto;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.comm { padding: 1px 0; }
+.comm.header {
+  font-weight: 800;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 8px;
+  border-top: 1px solid var(--line);
+  padding-top: 6px;
+}
+.comm-feed .comm.header:first-child { margin-top: 0; border-top: none; padding-top: 0; }
+.comm.pbp { color: var(--dim); }
+.comm.streak { color: var(--accent); font-weight: 600; }
+.comm.gag-good { color: var(--good); font-weight: 600; }
+.comm.gag-bad { color: var(--bad); font-weight: 600; }
+.comm.final-w { color: var(--good); font-weight: 800; }
+.comm.final-l { color: var(--bad); font-weight: 800; }
 
 /* Pool */
 .pool-hint { color: var(--dim); font-size: 13px; margin-bottom: 10px; }
