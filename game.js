@@ -565,6 +565,7 @@ rosterEl.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-remove]");
   if (!btn) return;
   roster = roster.filter((p) => p.id !== btn.dataset.remove);
+  Sound.remove();
   renderAll();
 });
 
@@ -579,6 +580,7 @@ poolEl.addEventListener("click", (e) => {
     return;
   }
   roster.push(player);
+  Sound.add();
   renderAll();
 });
 
@@ -631,9 +633,15 @@ playBtn.addEventListener("click", () => {
   const champ = CHAMPIONS[Math.floor(Math.random() * CHAMPIONS.length)];
   const diff = DIFFICULTIES[currentDifficulty];
   const rUser = teamRating();
+  Sound.whistle();
   const series = simSeries(champ.rating, champ);
   renderSeriesResult(champ, rUser, series, diff);
-  if (series.won) launchConfetti();
+  if (series.won) {
+    launchConfetti();
+    Sound.win();
+  } else {
+    Sound.lose();
+  }
 });
 
 document.getElementById("clearBtn").addEventListener("click", () => {
@@ -641,5 +649,14 @@ document.getElementById("clearBtn").addEventListener("click", () => {
   resultEl.innerHTML = "";
   renderAll();
 });
+
+const muteBtn = document.getElementById("muteBtn");
+if (muteBtn) {
+  muteBtn.addEventListener("click", () => {
+    const muted = Sound.toggle();
+    muteBtn.textContent = muted ? "🔇" : "🔊";
+    muteBtn.title = muted ? "Sound off" : "Sound on";
+  });
+}
 
 renderAll();
