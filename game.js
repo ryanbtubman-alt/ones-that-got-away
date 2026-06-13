@@ -28,6 +28,14 @@ const DIFFICULTIES = [
   { name: "Legend", maxStars: 0, desc: "No 90+ stars. Role players only." },
 ];
 let currentDifficulty = 1; // Pro by default
+let chaosIntensity = 0.65; // 0 = real basketball, 1 = total anarchy
+
+function gagChance() {
+  return 0.12 + chaosIntensity * 0.82;
+}
+function chaosChance() {
+  return chaosIntensity * 0.9;
+}
 
 function isStar(p) {
   return p.overall >= STAR;
@@ -231,7 +239,7 @@ const CHAOS = [
   { t: "🐐 A live goat wandered onto the floor. Jordan, wherever he is, took it personally.", od: 4 },
 ];
 function rollChaos() {
-  return Math.random() < 0.5 ? [rand(CHAOS)] : [];
+  return Math.random() < chaosChance() ? [rand(CHAOS)] : [];
 }
 // Generic play-by-play templates: {R} = your player, {C} = champion player.
 const PBP = [
@@ -267,7 +275,7 @@ function rollGags() {
   const events = [];
   roster.forEach((p) => {
     const list = GAGS[p.id];
-    if (list && list.length && Math.random() < 0.72) {
+    if (list && list.length && Math.random() < gagChance()) {
       events.push({ name: p.name, ...rand(list) });
     }
   });
@@ -301,6 +309,7 @@ function gameRoll() {
 function simSeries(rOpp, champ) {
   const games = [];
   const commentary = [];
+  const reel = []; // wildest moments, for the post-series recap
   let uw = 0,
     ow = 0,
     g = 0;
@@ -333,8 +342,21 @@ function simSeries(rOpp, champ) {
       type: win ? "final-w" : "final-l",
       text: `${win ? "✅ WIN" : "❌ LOSS"} ${u}–${o}`,
     });
+
+    // Collect wildest moments for the recap (by absolute rating swing).
+    gags.forEach((x) => reel.push({ text: x.t, mag: Math.abs(x.d), g }));
+    chaos.forEach((x) =>
+      reel.push({ text: x.t, mag: Math.abs(x.d || 0) + Math.abs(x.od || 0), g })
+    );
+    notes.forEach((n) => reel.push({ text: n, mag: 4, g }));
   }
-  return { games, uw, ow, won: uw === 4, commentary };
+  reel.sort((a, b) => b.mag - a.mag);
+  const recap = {
+    top: reel[0] || null,
+    count: reel.length,
+    games: games.length,
+  };
+  return { games, uw, ow, won: uw === 4, commentary, recap };
 }
 
 // --- Rendering --------------------------------------------------------------
@@ -471,8 +493,21 @@ function renderSeriesResult(champ, rUser, series, diff) {
     )
     .join("");
 
+  const bannerText = series.won
+    ? "You have overcome Nico and Vivek and saved your franchise"
+    : "Nico and Vivek have taken the series and your soul";
+
+  const recapHtml = series.recap.top
+    ? `<div class="recap">
+         <div class="recap-title">🎬 Chaos Recap</div>
+         <div class="recap-top">Moment of the series: ${series.recap.top.text}</div>
+         <div class="recap-sub">${series.recap.count} certified ridiculous events across ${series.recap.games} games.</div>
+       </div>`
+    : `<div class="recap"><div class="recap-title">🎬 Chaos Recap</div><div class="recap-sub">A shockingly normal series — crank the chaos slider up.</div></div>`;
+
   resultEl.innerHTML = `
     <div class="result-card">
+      <div class="banner ${series.won ? "win" : "lose"}">${bannerText}</div>
       <div class="matchup">
         <div class="side you">
           <div class="side-label">YOUR CASTOFFS</div>
@@ -497,6 +532,7 @@ function renderSeriesResult(champ, rUser, series, diff) {
         </div>
       </div>
       <div class="result-verdict ${series.won ? "won" : "lost"}">${verdict}</div>
+      ${recapHtml}
     </div>`;
   resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
@@ -549,6 +585,23 @@ document.querySelectorAll("[data-diff]").forEach((btn) => {
         .join(", ")} — over the ${DIFFICULTIES[currentDifficulty].name} star limit.`;
   });
 });
+
+const chaosSlider = document.getElementById("chaosSlider");
+const chaosValEl = document.getElementById("chaosVal");
+function chaosLabel(v) {
+  if (v <= 20) return "Real basketball 😴";
+  if (v <= 45) return "Mild mischief";
+  if (v <= 70) return "Unhinged";
+  if (v <= 90) return "Chaos";
+  return "TOTAL ANARCHY 🔥";
+}
+if (chaosSlider) {
+  chaosSlider.addEventListener("input", () => {
+    const v = Number(chaosSlider.value);
+    chaosIntensity = v / 100;
+    chaosValEl.textContent = chaosLabel(v);
+  });
+}
 
 playBtn.addEventListener("click", () => {
   if (!isComplete()) return;
