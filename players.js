@@ -102,6 +102,47 @@ const PLAYERS = [
     roast: "One of the best shooters alive, traded away. The other Curry sting.",
   },
 
+  {
+    id: "finley",
+    name: "Michael Finley",
+    team: "DAL", via: "fa", year: 2005, to: "San Antonio Spurs",
+    pos: ["SG", "SF"],
+    peakSeason: "2000-01",
+    stats: { pts: 22.6, reb: 5.3, ast: 3.6, stl: 1.2, blk: 0.3 },
+    accoladeBonus: 5, // 2x All-Star
+    roast: "Amnestied by Dallas — then won a ring with the rival Spurs. Oops.",
+  },
+  {
+    id: "terry",
+    name: "Jason Terry",
+    team: "DAL", via: "fa", year: 2012, to: "Boston Celtics",
+    pos: ["PG", "SG"],
+    peakSeason: "2008-09",
+    stats: { pts: 19.6, reb: 2.4, ast: 3.4, stl: 1.0, blk: 0.2 },
+    accoladeBonus: 5, // Sixth Man of the Year
+    roast: "The Jet won them a title, then was let walk a year later. The flight left.",
+  },
+  {
+    id: "howard",
+    name: "Josh Howard",
+    team: "DAL", via: "trade", year: 2010, to: "Washington Wizards",
+    pos: ["SF", "PF"],
+    peakSeason: "2007-08",
+    stats: { pts: 19.9, reb: 7.0, ast: 2.0, stl: 1.2, blk: 1.0 },
+    accoladeBonus: 4, // All-Star
+    roast: "An All-Star wing in his prime, dealt at the deadline for spare change.",
+  },
+  {
+    id: "dsj",
+    name: "Dennis Smith Jr.",
+    team: "DAL", via: "trade", year: 2019, to: "New York Knicks",
+    pos: ["PG"],
+    peakSeason: "2017-18",
+    stats: { pts: 15.2, reb: 3.8, ast: 5.2, stl: 1.0, blk: 0.4 },
+    accoladeBonus: 0,
+    roast: "Drafted as the future, flipped in the Porzingis deal. Bounced ever since.",
+  },
+
   // ---------------- SACRAMENTO KINGS castoffs ----------------
   {
     id: "fox",
@@ -185,5 +226,55 @@ const PLAYERS = [
     stats: { pts: 17.0, reb: 14.1, ast: 0.7, stl: 0.6, blk: 2.1 },
     accoladeBonus: 4, // led NBA in rebounds & blocks
     roast: "Drafted, buried, released — then led the entire NBA in blocks and boards in Miami.",
+  },
+  {
+    id: "webber",
+    name: "Chris Webber",
+    team: "SAC", via: "trade", year: 2005, to: "Philadelphia 76ers",
+    pos: ["PF", "C"],
+    peakSeason: "2000-01",
+    stats: { pts: 27.1, reb: 11.1, ast: 4.2, stl: 1.4, blk: 1.7 },
+    accoladeBonus: 7, // 5x All-Star, All-NBA First Team
+    roast: "The face of the franchise, traded away mid-prime. The Kings never recovered.",
+  },
+  {
+    id: "peja",
+    name: "Peja Stojaković",
+    team: "SAC", via: "trade", year: 2006, to: "Indiana Pacers",
+    pos: ["SF", "SG"],
+    peakSeason: "2003-04",
+    stats: { pts: 24.2, reb: 6.3, ast: 2.1, stl: 1.0, blk: 0.2 },
+    accoladeBonus: 6, // 3x All-Star, 2x Three-Point Contest champ
+    roast: "Elite sharpshooter, shipped out — then won a ring with the Mavs in 2011. Brutal.",
+  },
+  {
+    id: "bibby",
+    name: "Mike Bibby",
+    team: "SAC", via: "trade", year: 2008, to: "Atlanta Hawks",
+    pos: ["PG"],
+    peakSeason: "2004-05",
+    stats: { pts: 19.6, reb: 3.5, ast: 6.8, stl: 1.3, blk: 0.1 },
+    accoladeBonus: 3,
+    roast: "The clutch engine of the great Kings teams, eventually dealt for parts.",
+  },
+  {
+    id: "kmart",
+    name: "Kevin Martin",
+    team: "SAC", via: "trade", year: 2010, to: "Houston Rockets",
+    pos: ["SG"],
+    peakSeason: "2008-09",
+    stats: { pts: 24.6, reb: 3.6, ast: 2.7, stl: 1.1, blk: 0.2 },
+    accoladeBonus: 2, // elite free-throw / scoring efficiency
+    roast: "A 24-a-night bucket-getter, traded away in his prime. Of course.",
+  },
+  {
+    id: "artest",
+    name: "Ron Artest",
+    team: "SAC", via: "trade", year: 2008, to: "Houston Rockets",
+    pos: ["SF", "PF"],
+    peakSeason: "2003-04",
+    stats: { pts: 18.3, reb: 5.3, ast: 3.7, stl: 2.1, blk: 0.7 },
+    accoladeBonus: 6, // Defensive Player of the Year, All-Star
+    roast: "An All-NBA defender, traded off — then won a title with the Lakers in 2010.",
   },
 ];

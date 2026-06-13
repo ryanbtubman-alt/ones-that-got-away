@@ -166,6 +166,24 @@ header p {
   cursor: not-allowed;
 }
 
+/* Difficulty selector */
+.difficulty { margin-top: 14px; }
+.diff-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.diff-title { font-size: 12px; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; }
+.diff-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.diff-btns button {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.diff-btns button.on { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+.diff-desc { font-size: 12px; color: var(--dim); margin-top: 6px; font-style: italic; }
+.diff-tag { text-align: center; font-size: 12px; color: var(--accent); font-weight: 700; margin-bottom: 6px; }
+
 /* Series result */
 #result { margin-top: 16px; }
 .result-card {

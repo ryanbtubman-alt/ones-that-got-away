@@ -18,6 +18,16 @@ PLAYERS.forEach((p) => (p.overall = overall(p)));
 let roster = []; // array of player objects, max ROSTER_SIZE (positionless)
 let teamFilter = "ALL"; // ALL | DAL | SAC
 
+// Difficulty: oppAdj boosts the champion's rating; noiseScale < 1 means fewer
+// upsets, so the rating gap matters more (harder when you're the underdog).
+const DIFFICULTIES = [
+  { name: "Rookie", oppAdj: -5, noiseScale: 1.2, desc: "Champs take it easy on you." },
+  { name: "Pro", oppAdj: 0, noiseScale: 1.0, desc: "Straight up, no help." },
+  { name: "All-Star", oppAdj: 5, noiseScale: 0.9, desc: "Champions get a boost." },
+  { name: "Legend", oppAdj: 10, noiseScale: 0.78, desc: "Peak dynasty. Good luck." },
+];
+let currentDifficulty = 1; // Pro by default
+
 function pickedIds() {
   return roster.map((p) => p.id);
 }
@@ -35,9 +45,9 @@ function noise() {
   // ~bell-shaped, std around 9 points
   return (Math.random() + Math.random() + Math.random() - 1.5) * 9;
 }
-function simGame(rUser, rOpp) {
-  let a = Math.round(101 + (rUser - 87) * 1.6 + noise());
-  let b = Math.round(101 + (rOpp - 87) * 1.6 + noise());
+function simGame(rUser, rOpp, noiseScale) {
+  let a = Math.round(101 + (rUser - 87) * 1.6 + noise() * noiseScale);
+  let b = Math.round(101 + (rOpp - 87) * 1.6 + noise() * noiseScale);
   if (a === b) a += 1; // no ties in basketball
   return [a, b];
 }
@@ -66,13 +76,13 @@ function gameRoll() {
   });
   return { rating: Math.round(sum / roster.length), notes };
 }
-function simSeries(rOpp) {
+function simSeries(rOpp, noiseScale) {
   const games = [];
   let uw = 0,
     ow = 0;
   while (uw < 4 && ow < 4) {
     const { rating, notes } = gameRoll(); // user rating varies per game if volatile
-    const [u, o] = simGame(rating, rOpp);
+    const [u, o] = simGame(rating, rOpp, noiseScale);
     if (u > o) uw++;
     else ow++;
     games.push({ u, o, win: u > o, notes });
@@ -178,10 +188,14 @@ function renderAll() {
   renderScore();
 }
 
-function renderSeriesResult(champ, rUser, series) {
+function renderSeriesResult(champ, rUser, series, diff, oppRating) {
   const champStars = champ.players
     .map((p) => `${p.name} <span class="dim">${p.ovr}</span>`)
     .join(" · ");
+  const boost =
+    diff.oppAdj !== 0
+      ? ` <span class="dim">(${champ.rating}${diff.oppAdj > 0 ? "+" : ""}${diff.oppAdj})</span>`
+      : "";
 
   const verdict = series.won
     ? series.uw - series.ow >= 3
@@ -215,9 +229,10 @@ function renderSeriesResult(champ, rUser, series) {
         <div class="vs">${series.uw}–${series.ow}</div>
         <div class="side opp">
           <div class="side-label">${champ.year} ${champ.name}</div>
-          <div class="side-rating">${champ.rating}</div>
+          <div class="side-rating">${oppRating}${boost}</div>
         </div>
       </div>
+      <div class="diff-tag">⚙️ ${diff.name} difficulty</div>
       <div class="champ-blurb">${champ.blurb}</div>
       <div class="champ-stars">${champStars}</div>
       <div class="games">${gamesHtml}</div>
@@ -254,12 +269,25 @@ document.querySelectorAll("[data-filter]").forEach((btn) => {
   });
 });
 
+const diffDescEl = document.getElementById("diffDesc");
+document.querySelectorAll("[data-diff]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    currentDifficulty = Number(btn.dataset.diff);
+    document
+      .querySelectorAll("[data-diff]")
+      .forEach((b) => b.classList.toggle("on", b === btn));
+    if (diffDescEl) diffDescEl.textContent = DIFFICULTIES[currentDifficulty].desc;
+  });
+});
+
 playBtn.addEventListener("click", () => {
   if (!isComplete()) return;
   const champ = CHAMPIONS[Math.floor(Math.random() * CHAMPIONS.length)];
+  const diff = DIFFICULTIES[currentDifficulty];
   const rUser = teamRating();
-  const series = simSeries(champ.rating);
-  renderSeriesResult(champ, rUser, series);
+  const oppRating = champ.rating + diff.oppAdj;
+  const series = simSeries(oppRating, diff.noiseScale);
+  renderSeriesResult(champ, rUser, series, diff, oppRating);
 });
 
 document.getElementById("clearBtn").addEventListener("click", () => {
