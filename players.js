@@ -112,6 +112,9 @@ const PLAYERS = [
     stats: { pts: 26.6, reb: 4.6, ast: 5.6, stl: 2.0, blk: 0.4 },
     accoladeBonus: 7, // All-NBA 3rd Team, All-Star, inaugural Clutch Player of the Year
     roast: "Ended the playoff drought, then got shipped to San Antonio in his prime. Light the beam.",
+    // Special: Fox is wildly streaky. His rating re-rolls every game between a
+    // disaster night and a superstar night. High risk, high reward.
+    volatile: { min: 68, max: 99 },
   },
   {
     id: "haliburton",

@@ -41,15 +41,41 @@ function simGame(rUser, rOpp) {
   if (a === b) a += 1; // no ties in basketball
   return [a, b];
 }
-function simSeries(rUser, rOpp) {
+// Volatile players (e.g. De'Aaron Fox) re-roll their rating every single game.
+function rollOvr(p) {
+  if (p.volatile) {
+    const { min, max } = p.volatile;
+    return Math.floor(min + Math.random() * (max - min + 1));
+  }
+  return p.overall;
+}
+// One game's roster rating + any "hot/cold" flavor notes from volatile players.
+function gameRoll() {
+  let sum = 0;
+  const notes = [];
+  roster.forEach((p) => {
+    const r = rollOvr(p);
+    sum += r;
+    if (p.volatile) {
+      const last = p.name.split(" ").pop();
+      if (r >= 92) notes.push(`🔥 ${last} went NUCLEAR (${r})`);
+      else if (r >= 86) notes.push(`✅ ${last} cooking (${r})`);
+      else if (r <= 74) notes.push(`🥶 ${last} ICE COLD (${r})`);
+      else notes.push(`😐 ${last} quiet (${r})`);
+    }
+  });
+  return { rating: Math.round(sum / roster.length), notes };
+}
+function simSeries(rOpp) {
   const games = [];
   let uw = 0,
     ow = 0;
   while (uw < 4 && ow < 4) {
-    const [u, o] = simGame(rUser, rOpp);
+    const { rating, notes } = gameRoll(); // user rating varies per game if volatile
+    const [u, o] = simGame(rating, rOpp);
     if (u > o) uw++;
     else ow++;
-    games.push({ u, o, win: u > o });
+    games.push({ u, o, win: u > o, notes });
   }
   return { games, uw, ow, won: uw === 4 };
 }
@@ -71,6 +97,10 @@ function viaTag(p) {
   const label = p.via === "trade" ? "TRADED" : "WALKED (FA)";
   return `<span class="via ${p.via}">${label} · ${p.year} → ${p.to}</span>`;
 }
+function volatileTag(p) {
+  if (!p.volatile) return "";
+  return `<span class="streaky" title="Re-rolls ${p.volatile.min}-${p.volatile.max} OVR every game">🎲 STREAKY</span>`;
+}
 
 function renderRoster() {
   let html = "";
@@ -81,7 +111,7 @@ function renderRoster() {
         <div class="slot filled">
           <div class="slot-ovr">${p.overall}</div>
           <div class="slot-body">
-            <div class="slot-name">${p.name} ${teamBadge(p.team)}</div>
+            <div class="slot-name">${p.name} ${teamBadge(p.team)} ${volatileTag(p)}</div>
             <div class="slot-meta">${p.stats.pts} PPG · ${p.stats.reb} RPG · ${p.stats.ast} APG</div>
           </div>
           <button class="remove" data-remove="${p.id}" title="Remove">✕</button>
@@ -123,6 +153,7 @@ function renderPool() {
             <span class="ovr">${p.overall}</span>
             <span class="card-name">${p.name}</span>
             ${teamBadge(p.team)}
+            ${volatileTag(p)}
           </div>
           <div class="card-stats">${p.stats.pts} pts · ${p.stats.reb} reb · ${p.stats.ast} ast <span class="dim">(${p.peakSeason})</span></div>
           ${viaTag(p)}
@@ -164,9 +195,12 @@ function renderSeriesResult(champ, rUser, series) {
     .map(
       (g, i) => `
       <div class="game ${g.win ? "w" : "l"}">
-        <span class="gnum">G${i + 1}</span>
-        <span class="gscore">${g.u}–${g.o}</span>
-        <span class="gres">${g.win ? "W" : "L"}</span>
+        <div class="grow">
+          <span class="gnum">G${i + 1}</span>
+          <span class="gscore">${g.u}–${g.o}</span>
+          <span class="gres">${g.win ? "W" : "L"}</span>
+        </div>
+        ${g.notes && g.notes.length ? `<div class="gnote">${g.notes.join(" · ")}</div>` : ""}
       </div>`
     )
     .join("");
@@ -224,7 +258,7 @@ playBtn.addEventListener("click", () => {
   if (!isComplete()) return;
   const champ = CHAMPIONS[Math.floor(Math.random() * CHAMPIONS.length)];
   const rUser = teamRating();
-  const series = simSeries(rUser, champ.rating);
+  const series = simSeries(champ.rating);
   renderSeriesResult(champ, rUser, series);
 });
 
