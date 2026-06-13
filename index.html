@@ -8,45 +8,96 @@
 </head>
 <body>
   <header>
-    <div class="logo-row">
-      <!-- Crying cowboy (Mavericks) -->
-      <svg class="mascot" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" aria-label="Crying cowboy">
-        <ellipse cx="40" cy="46" rx="22" ry="23" fill="#f1c9a5"/>
-        <ellipse cx="40" cy="48" rx="22" ry="22" fill="none" stroke="#d8a878" stroke-width="1.5"/>
-        <!-- hat -->
-        <path d="M12 30 Q40 24 68 30 Q60 32 40 32 Q20 32 12 30 Z" fill="#5a3b22"/>
-        <path d="M22 30 Q22 12 40 11 Q58 12 58 30 Z" fill="#6b4527"/>
-        <path d="M22 28 Q40 25 58 28 L58 30 Q40 27 22 30 Z" fill="#0064b1"/>
-        <!-- sad eyes -->
-        <path d="M27 44 Q31 41 35 44" stroke="#3a2a1a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-        <path d="M45 44 Q49 41 53 44" stroke="#3a2a1a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-        <!-- tear -->
-        <path d="M31 48 Q28 56 31 60 Q34 56 31 48 Z" fill="#4ea3ff"/>
-        <!-- frown -->
-        <path d="M33 60 Q40 55 47 60" stroke="#7a4a30" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-      </svg>
+    <!-- NBA Jam style matchup logo -->
+    <div class="jam">
+      <div class="jam-tonight">★ TONIGHT'S MATCHUP ★</div>
+      <div class="jam-board">
+        <div class="jam-team heroes">
+          <div class="jam-cards">
+            <div class="jam-card">
+              <svg viewBox="0 0 80 90" class="jam-face">
+                <path d="M8 90 Q8 66 40 64 Q72 66 72 90 Z" fill="#0064b1"/>
+                <path d="M33 66 L47 66 L44 74 L36 74 Z" fill="#f0c8a0"/>
+                <ellipse cx="40" cy="44" rx="19" ry="21" fill="#f0c8a0"/>
+                <path d="M24 48 Q40 64 56 48 Q52 60 40 62 Q28 60 24 48Z" fill="#d9a878" opacity=".35"/>
+                <path d="M21 40 Q20 18 40 18 Q60 18 59 40 Q54 30 40 30 Q26 30 21 40Z" fill="#6b4a2a"/>
+                <path d="M28 39 Q33 37 37 39" stroke="#4a3320" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <path d="M43 39 Q47 37 52 39" stroke="#4a3320" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <circle cx="33" cy="44" r="2.2" fill="#2a1f15"/>
+                <circle cx="47" cy="44" r="2.2" fill="#2a1f15"/>
+                <path d="M34 54 Q40 58 47 53" stroke="#7a4a30" stroke-width="2" fill="none" stroke-linecap="round"/>
+              </svg>
+              <div class="jam-name">LUKA</div>
+            </div>
+            <div class="jam-card">
+              <svg viewBox="0 0 80 90" class="jam-face">
+                <path d="M8 90 Q8 66 40 64 Q72 66 72 90 Z" fill="#5a2d81"/>
+                <path d="M33 66 L47 66 L44 74 L36 74 Z" fill="#7a4f33"/>
+                <ellipse cx="40" cy="44" rx="19" ry="21" fill="#85583a"/>
+                <path d="M20 42 Q20 19 40 19 Q60 19 60 42 Q56 33 40 33 Q24 33 20 42Z" fill="#241a12"/>
+                <path d="M35 58 Q40 64 45 58 Q43 62 40 62 Q37 62 35 58Z" fill="#241a12"/>
+                <path d="M28 39 Q33 37 37 39" stroke="#1a120c" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <path d="M43 39 Q47 37 52 39" stroke="#1a120c" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <circle cx="33" cy="44" r="2.2" fill="#1a120c"/>
+                <circle cx="47" cy="44" r="2.2" fill="#1a120c"/>
+                <path d="M33 53 Q40 60 47 53" stroke="#3a241a" stroke-width="2" fill="none" stroke-linecap="round"/>
+              </svg>
+              <div class="jam-name">HALI</div>
+            </div>
+          </div>
+          <div class="jam-team-name hero-name">THE GOT-AWAYS</div>
+        </div>
 
-      <h1>The Ones That Got <span class="dalt">A</span><span class="sact">way</span></h1>
+        <div class="jam-vs">VS</div>
 
-      <!-- Crying king (Kings) -->
-      <svg class="mascot" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" aria-label="Crying king">
-        <ellipse cx="40" cy="48" rx="22" ry="23" fill="#f1c9a5"/>
-        <ellipse cx="40" cy="50" rx="22" ry="22" fill="none" stroke="#d8a878" stroke-width="1.5"/>
-        <!-- crown -->
-        <path d="M18 30 L24 14 L32 26 L40 12 L48 26 L56 14 L62 30 Z" fill="#f4c430" stroke="#caa017" stroke-width="1.5" stroke-linejoin="round"/>
-        <rect x="18" y="29" width="44" height="6" rx="2" fill="#5a2d81"/>
-        <circle cx="24" cy="16" r="2.4" fill="#fff"/>
-        <circle cx="40" cy="14" r="2.4" fill="#fff"/>
-        <circle cx="56" cy="16" r="2.4" fill="#fff"/>
-        <!-- sad eyes -->
-        <path d="M27 46 Q31 43 35 46" stroke="#3a2a1a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-        <path d="M45 46 Q49 43 53 46" stroke="#3a2a1a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-        <!-- tear -->
-        <path d="M49 50 Q46 58 49 62 Q52 58 49 50 Z" fill="#b07bdc"/>
-        <!-- frown -->
-        <path d="M33 62 Q40 57 47 62" stroke="#7a4a30" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-      </svg>
+        <div class="jam-team villains">
+          <div class="jam-cards">
+            <div class="jam-card">
+              <svg viewBox="0 0 80 90" class="jam-face">
+                <path d="M6 90 Q6 64 40 62 Q74 64 74 90 Z" fill="#2a2f3a"/>
+                <path d="M33 64 L47 64 L40 90 Z" fill="#e9edf3"/>
+                <path d="M37 66 L43 66 L41 90 L39 90 Z" fill="#7a1d1d"/>
+                <path d="M33 64 L40 72 L47 64 L44 62 L40 66 L36 62 Z" fill="#1f242e"/>
+                <path d="M35 60 L45 60 L44 66 L36 66Z" fill="#8a5e3e"/>
+                <ellipse cx="40" cy="42" rx="18" ry="20" fill="#8a5e3e"/>
+                <path d="M22 40 Q22 20 40 20 Q58 20 58 40 Q54 32 40 32 Q26 32 22 40Z" fill="#3a3a3a"/>
+                <path d="M22 24 Q18 16 24 14 Q24 20 27 24Z" fill="#c0302f"/>
+                <path d="M58 24 Q62 16 56 14 Q56 20 53 24Z" fill="#c0302f"/>
+                <path d="M28 40 L37 42" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+                <path d="M52 40 L43 42" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="33" cy="44.5" r="2" fill="#111"/>
+                <circle cx="47" cy="44.5" r="2" fill="#111"/>
+                <path d="M33 52 Q40 57 47 51" stroke="#3a241a" stroke-width="2" fill="none" stroke-linecap="round"/>
+              </svg>
+              <div class="jam-name">NICO</div>
+            </div>
+            <div class="jam-card">
+              <svg viewBox="0 0 80 90" class="jam-face">
+                <path d="M6 90 Q6 64 40 62 Q74 64 74 90 Z" fill="#2a2f3a"/>
+                <path d="M33 64 L47 64 L40 90 Z" fill="#e9edf3"/>
+                <path d="M37 66 L43 66 L41 90 L39 90 Z" fill="#5a2d81"/>
+                <path d="M33 64 L40 72 L47 64 L44 62 L40 66 L36 62 Z" fill="#1f242e"/>
+                <path d="M35 60 L45 60 L44 66 L36 66Z" fill="#a9764e"/>
+                <ellipse cx="40" cy="42" rx="18" ry="20" fill="#b07a50"/>
+                <path d="M22 40 Q22 20 40 20 Q58 20 58 40 Q54 31 40 31 Q26 31 22 40Z" fill="#2a2620"/>
+                <path d="M22 24 Q18 16 24 14 Q24 20 27 24Z" fill="#c0302f"/>
+                <path d="M58 24 Q62 16 56 14 Q56 20 53 24Z" fill="#c0302f"/>
+                <rect x="27" y="41" width="11" height="8" rx="2" fill="none" stroke="#111" stroke-width="1.6"/>
+                <rect x="42" y="41" width="11" height="8" rx="2" fill="none" stroke="#111" stroke-width="1.6"/>
+                <path d="M38 45 L42 45" stroke="#111" stroke-width="1.6"/>
+                <circle cx="32.5" cy="45" r="1.8" fill="#111"/>
+                <circle cx="47.5" cy="45" r="1.8" fill="#111"/>
+                <path d="M33 53 Q40 58 47 52" stroke="#4a2e1e" stroke-width="2" fill="none" stroke-linecap="round"/>
+              </svg>
+              <div class="jam-name">VIVEK</div>
+            </div>
+          </div>
+          <div class="jam-team-name villain-name">THE FRONT OFFICE</div>
+        </div>
+      </div>
     </div>
+
+    <h1>The Ones That Got <span class="dalt">A</span><span class="sact">way</span></h1>
     <p>
       Build the best starting five using <b>only</b> players the
       <span class="dalt">Dallas Mavericks</span> and

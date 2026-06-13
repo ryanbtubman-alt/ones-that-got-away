@@ -351,11 +351,12 @@ function simSeries(rOpp, champ) {
     notes.forEach((n) => reel.push({ text: n, mag: 4, g }));
   }
   reel.sort((a, b) => b.mag - a.mag);
-  const recap = {
-    top: reel[0] || null,
-    count: reel.length,
-    games: games.length,
-  };
+  // De-dupe repeated incidents, keep the wildest few.
+  const seen = new Set();
+  const moments = reel
+    .filter((r) => (seen.has(r.text) ? false : seen.add(r.text)))
+    .slice(0, 3);
+  const recap = { moments, count: reel.length, games: games.length };
   return { games, uw, ow, won: uw === 4, commentary, recap };
 }
 
@@ -497,16 +498,21 @@ function renderSeriesResult(champ, rUser, series, diff) {
     ? "You have overcome Nico and Vivek and saved your franchise"
     : "Nico and Vivek have taken the series and your soul";
 
-  const recapHtml = series.recap.top
+  const medals = ["🥇", "🥈", "🥉"];
+  const recapHtml = series.recap.moments.length
     ? `<div class="recap">
-         <div class="recap-title">🎬 Chaos Recap</div>
-         <div class="recap-top">Moment of the series: ${series.recap.top.text}</div>
+         <div class="recap-title">🎬 Chaos Recap — top moments</div>
+         <ul class="recap-list">
+           ${series.recap.moments
+             .map((m, i) => `<li><span class="recap-rank">${medals[i] || "•"}</span>${m.text}</li>`)
+             .join("")}
+         </ul>
          <div class="recap-sub">${series.recap.count} certified ridiculous events across ${series.recap.games} games.</div>
        </div>`
     : `<div class="recap"><div class="recap-title">🎬 Chaos Recap</div><div class="recap-sub">A shockingly normal series — crank the chaos slider up.</div></div>`;
 
   resultEl.innerHTML = `
-    <div class="result-card">
+    <div class="result-card ${series.won ? "won-fx" : "lost-fx"}">
       <div class="banner ${series.won ? "win" : "lose"}">${bannerText}</div>
       <div class="matchup">
         <div class="side you">
@@ -535,6 +541,23 @@ function renderSeriesResult(champ, rUser, series, diff) {
       ${recapHtml}
     </div>`;
   resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function launchConfetti() {
+  const colors = ["#f4c430", "#36d399", "#4ea3ff", "#b07bdc", "#f87171", "#ffffff"];
+  const box = document.createElement("div");
+  box.className = "confetti-box";
+  for (let i = 0; i < 110; i++) {
+    const c = document.createElement("div");
+    c.className = "confetti";
+    c.style.left = Math.random() * 100 + "vw";
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDelay = Math.random() * 0.7 + "s";
+    c.style.animationDuration = 2 + Math.random() * 1.6 + "s";
+    box.appendChild(c);
+  }
+  document.body.appendChild(box);
+  setTimeout(() => box.remove(), 4500);
 }
 
 // --- Events -----------------------------------------------------------------
@@ -610,6 +633,7 @@ playBtn.addEventListener("click", () => {
   const rUser = teamRating();
   const series = simSeries(champ.rating, champ);
   renderSeriesResult(champ, rUser, series, diff);
+  if (series.won) launchConfetti();
 });
 
 document.getElementById("clearBtn").addEventListener("click", () => {

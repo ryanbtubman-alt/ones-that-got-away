@@ -25,18 +25,76 @@ header {
   text-align: center;
   padding: 26px 16px 8px;
 }
-.logo-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  flex-wrap: wrap;
+/* NBA Jam matchup logo */
+.jam {
+  max-width: 640px;
+  margin: 0 auto 6px;
+  background: linear-gradient(180deg, #11131a, #1c2230);
+  border: 2px solid var(--accent);
+  border-radius: 14px;
+  padding: 10px 14px 14px;
+  box-shadow: 0 0 24px rgba(244,196,48,.18);
 }
-.mascot {
+.jam-tonight {
+  text-align: center;
+  font-weight: 900;
+  letter-spacing: 2px;
+  font-size: 13px;
+  color: var(--accent);
+  text-shadow: 0 0 8px rgba(244,196,48,.5);
+  margin-bottom: 8px;
+}
+.jam-board {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+}
+.jam-team { text-align: center; }
+.jam-cards { display: flex; justify-content: center; gap: 6px; }
+.jam-card {
+  background: #0c0e14;
+  border: 2px solid #333b4d;
+  border-radius: 8px;
+  padding: 3px 3px 0;
   width: 64px;
-  height: 64px;
-  flex: 0 0 auto;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,.4));
+}
+.heroes .jam-card { border-color: #2f7fd6; box-shadow: 0 0 10px rgba(47,127,214,.4); }
+.villains .jam-card { border-color: #c0302f; box-shadow: 0 0 10px rgba(192,48,47,.4); }
+.jam-face { width: 100%; height: auto; display: block; }
+.jam-name {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 2px 0;
+  background: #0c0e14;
+}
+.heroes .jam-name { color: #5aa6ff; }
+.villains .jam-name { color: #ff6b6b; }
+.jam-team-name {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+.hero-name { color: #5aa6ff; }
+.villain-name { color: #ff6b6b; }
+.jam-vs {
+  font-size: 28px;
+  font-weight: 900;
+  font-style: italic;
+  color: #fff;
+  text-shadow: 0 0 10px #f4c430, 0 0 4px #c0302f;
+  animation: vsPulse 1.2s ease-in-out infinite;
+}
+@keyframes vsPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+@media (max-width: 520px) {
+  .jam-card { width: 52px; }
+  .jam-vs { font-size: 22px; }
+  .jam-team-name { font-size: 10px; }
 }
 header h1 {
   margin: 0;
@@ -220,6 +278,47 @@ header p {
   100% { transform: scale(1); opacity: 1; }
 }
 @media (max-width: 520px) { .banner { font-size: 22px; } }
+
+/* Win/loss result effects */
+.result-card.won-fx { animation: popIn 0.4s ease-out; }
+.result-card.lost-fx { animation: shakeBad 0.55s ease-in-out; }
+@keyframes popIn {
+  0% { transform: scale(0.96); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes shakeBad {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-11px); }
+  30% { transform: translateX(10px); }
+  45% { transform: translateX(-8px); }
+  60% { transform: translateX(6px); }
+  75% { transform: translateX(-4px); }
+}
+
+/* Confetti */
+.confetti-box {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+.confetti {
+  position: absolute;
+  top: -14px;
+  width: 9px;
+  height: 14px;
+  border-radius: 2px;
+  animation: confettiFall linear forwards;
+}
+@keyframes confettiFall {
+  to { transform: translateY(106vh) rotate(720deg); opacity: 0.85; }
+}
+
+/* Recap (multi-moment) */
+.recap-list { margin: 4px 0 8px; padding-left: 0; list-style: none; }
+.recap-list li { font-size: 13px; margin-bottom: 4px; line-height: 1.35; }
+.recap-rank { margin-right: 4px; }
 
 .recap {
   margin-top: 14px;
