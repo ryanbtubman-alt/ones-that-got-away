@@ -123,7 +123,66 @@ const GAGS = {
     { t: "🩹 IT's hip flared up again — playing through visible pain.", d: -4 },
     { t: "🥺 IT, playing with a chip on his shoulder, is scoring in bunches.", d: +4 },
   ],
-  cuban_generic: [],
+  jamison: [
+    { t: "🛋️ Jamison got a little too comfortable and sleepwalked through the half.", d: -4 },
+    { t: "🔄 Jamison's lefty runners are falling from every angle.", d: +4 },
+  ],
+  chandler: [
+    { t: "🤧 Chandler caught a cold and completely lost his lob timing.", d: -3 },
+    { t: "🛡️ Chandler turned the paint into a no-fly zone — full DPOY mode.", d: +4 },
+  ],
+  harris: [
+    { t: "🐌 Harris left his first step back in the locker room tonight.", d: -3 },
+    { t: "💨 Harris is blowing by everybody off the bounce.", d: +3 },
+  ],
+  crowder: [
+    { t: "📱 Crowder spent the timeout requesting a trade on Twitter.", d: -3 },
+    { t: "🎯 Crowder is drilling corner threes and locking up the wing.", d: +3 },
+  ],
+  wood: [
+    { t: "🪑 Wood got a 'coach's decision' DNP for half the game. Again.", d: -4 },
+    { t: "🌳 Wood is stretching the floor and swatting shots at the rim.", d: +3 },
+  ],
+  sethcurry: [
+    { t: "👀 Seth got distracted watching his brother's highlights at halftime.", d: -3 },
+    { t: "🎯 Seth Curry literally cannot miss — the OTHER Curry is cooking.", d: +4 },
+  ],
+  finley: [
+    { t: "📻 Finley got stuck in 2005 traffic and showed up to the arena late.", d: -3 },
+    { t: "🃏 Finley turned back the clock with a smooth, efficient scoring night.", d: +3 },
+  ],
+  terry: [
+    { t: "✈️ The Jet got grounded — zero liftoff tonight.", d: -4 },
+    { t: "✈️ The Jet hit cruising altitude and is raining threes.", d: +4 },
+  ],
+  howard: [
+    { t: "😴 Josh Howard hit snooze through the national anthem and the 1st quarter.", d: -3 },
+    { t: "🔥 Josh Howard is doing All-Star things on both ends.", d: +3 },
+  ],
+  dsj: [
+    { t: "🫠 DSJ remembered he was a draft bust and pressed all night.", d: -4 },
+    { t: "🚀 DSJ went full bounce-mode with a ridiculous windmill jam!", d: +4 },
+  ],
+  bogdanovic: [
+    { t: "🌭 Bogdan tweaked a hammy reaching for the snack table.", d: -3 },
+    { t: "🔥 Bogi the microwave is scorching hot off the bench.", d: +3 },
+  ],
+  hield: [
+    { t: "🎰 Buddy chucked 20 threes and bricked 18 of them.", d: -4 },
+    { t: "🎯 Buddy is in a three-point contest with himself — and winning.", d: +4 },
+  ],
+  tyreke: [
+    { t: "🦵 Tyreke's knees filed a formal complaint with management.", d: -4 },
+    { t: "💪 Tyreke is bullying his way to the rim like it's 2010.", d: +3 },
+  ],
+  bibby: [
+    { t: "🧓 Father Time finally caught up with Bibby in the 4th quarter.", d: -3 },
+    { t: "🎯 Bibby is burying daggers like the glory-days Kings.", d: +4 },
+  ],
+  kmart: [
+    { t: "🤕 K-Mart pulled something during warmups. Of course he did.", d: -4 },
+    { t: "🪣 Kevin Martin is quietly piling up buckets in bunches.", d: +4 },
+  ],
 };
 // Generic play-by-play templates: {R} = your player, {C} = champion player.
 const PBP = [
@@ -154,12 +213,13 @@ function pbpLines(champ, n = 2) {
   return out;
 }
 // Roll comedy incidents for this game from rostered players who have gags.
+// High trigger rate — the gags ARE the broadcast.
 function rollGags() {
   const events = [];
   roster.forEach((p) => {
     const list = GAGS[p.id];
-    if (list && list.length && Math.random() < 0.22) {
-      events.push(rand(list));
+    if (list && list.length && Math.random() < 0.55) {
+      events.push({ name: p.name, ...rand(list) });
     }
   });
   return events;
@@ -206,13 +266,15 @@ function simSeries(rOpp, champ) {
     else ow++;
     games.push({ u, o, win, notes });
 
-    // Build the play-by-play feed for this game.
+    // Build the play-by-play feed for this game — gags are the headline.
     commentary.push({ type: "header", text: `GAME ${g} — vs ${champ.year} ${champ.name}` });
-    pbpLines(champ).forEach((l) => commentary.push({ type: "pbp", text: l }));
     notes.forEach((n) => commentary.push({ type: "streak", text: n }));
     gags.forEach((x) =>
       commentary.push({ type: x.d < 0 ? "gag-bad" : "gag-good", text: x.t })
     );
+    // Only drop in generic play-by-play if nothing wild happened this game.
+    if (notes.length === 0 && gags.length === 0)
+      pbpLines(champ, 1).forEach((l) => commentary.push({ type: "pbp", text: l }));
     commentary.push({
       type: win ? "final-w" : "final-l",
       text: `${win ? "✅ WIN" : "❌ LOSS"} ${u}–${o}`,
